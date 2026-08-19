@@ -1,6 +1,5 @@
 # sim2real-dialogue-control
 
-Code, trained policies, evaluation results, and reproducibility materials for **From Simulated to Real Visitors: RL-Assisted Dialogue Control in a VR Museum**.
 
 The repository implements the following research pipeline:
 
