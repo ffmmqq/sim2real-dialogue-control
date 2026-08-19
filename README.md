@@ -1,9 +1,7 @@
 # sim2real-dialogue-control
 
-Reproducibility artifact for **From Simulated to Real Visitors: RL-Assisted
-Dialogue Control in a VR Museum**.
 
-The repository exposes the non-VR research chain:
+The repository exposes the research chain:
 
 ```text
 Hybrid visitor simulator -> five-seed RL training -> trained policy checkpoint
@@ -24,7 +22,7 @@ visitor ---------------------------> KG-grounded LLM -> baseline response
 - `data/measurements/` — anonymous public derived measurements only.
 - `configs/` and `scripts/` — frozen configurations and convenience commands.
 
-No VR application code or assets are included. No raw human-subject data,
+No VR application codeare include d. No raw human data,
 participant identifiers, raw gaze streams, audio/video, raw transcripts, or raw
 questionnaires are included.
 
