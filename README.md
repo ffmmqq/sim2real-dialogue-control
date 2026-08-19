@@ -1,7 +1,8 @@
 # sim2real-dialogue-control
 
+Code, trained policies, evaluation results, and reproducibility materials for **From Simulated to Real Visitors: RL-Assisted Dialogue Control in a VR Museum**.
 
-The repository exposes the research chain:
+The repository implements the following research pipeline:
 
 ```text
 Hybrid visitor simulator -> five-seed RL training -> trained policy checkpoint
@@ -11,20 +12,17 @@ visitor -> policy dialogue action -> KG-grounded LLM -> RL-assisted response
 visitor ---------------------------> KG-grounded LLM -> baseline response
 ```
 
-## Repository map
+## Repository structure
 
-- `simulator/` — the final HybridSimulator and supporting visitor models used in training.
-- `pipeline/` — final training, evaluation, analysis, and reproducibility code.
-- `checkpoints/` — exactly five final inference checkpoints (learner seeds 1–5).
-- `results/seed_1/` — rollout, metrics, and summary from the final seed-1 checkpoint.
-- `conversational_agents/baseline/` — runnable baseline LLM + KG condition.
-- `conversational_agents/rl_assisted/` — runnable LLM + KG + policy-inference condition.
-- `data/measurements/` — anonymous public derived measurements only.
-- `configs/` and `scripts/` — frozen configurations and convenience commands.
-
-No VR application codeare include d. No raw human data,
-participant identifiers, raw gaze streams, audio/video, raw transcripts, or raw
-questionnaires are included.
+- `simulator/` — the final HybridSimulator and supporting visitor models used for RL training and evaluation.
+- `pipeline/` — training, evaluation, analysis, and reproducibility code.
+- `checkpoints/` — final trained policies for learner seeds 1–5.
+- `results/seed_1/` — simulator rollouts, metrics, and summaries generated with the final seed-1 policy.
+- `conversational_agents/baseline/` — the baseline conversational agent using an LLM and knowledge graph.
+- `conversational_agents/rl_assisted/` — the RL-assisted conversational agent using an LLM, knowledge graph, and trained policy.
+- `data/measurements/` — anonymized derived gaze, conversation, and multimodal-alignment measurements.
+- `configs/` — configurations for training and frozen-policy evaluation.
+- `scripts/` — commands for reproducing training, evaluation, and measurement preparation.
 
 ## Quick start
 
@@ -34,71 +32,140 @@ Python 3.10–3.11 is recommended.
 python -m venv .venv
 source .venv/bin/activate
 python -m pip install -r requirements.txt
-
-# Validate a released policy without an API call or model download.
-python -m conversational_agents.rl_assisted.runtime --smoke
-
-# Inspect the baseline grounded prompt without an API call.
-python -m conversational_agents.baseline.agent \
-  --message "What is special about this painting?" --dry-run
-
-# Validate release boundaries and large files.
-python scripts/check_release.py
 ```
 
-The DialogueBERT encoder is downloaded by Transformers on first state-building
-inference unless `HRL_BERT_MODEL` points to a local compatible model.
+Validate the released seed-1 policy:
+
+```bash
+python -m conversational_agents.rl_assisted.runtime --smoke
+```
+
+Inspect a knowledge-graph-grounded baseline prompt:
+
+```bash
+python -m conversational_agents.baseline.agent \
+  --message "What is special about this painting?" \
+  --dry-run
+```
+
+The DialogueBERT encoder is downloaded by Transformers during the first state-building inference. A compatible local model can be specified with `HRL_BERT_MODEL`.
 
 ## Reproduce training
 
-The paper configuration uses a fixed HybridSimulator seed of 42, learner seeds
-1–5, 500 episodes, 50 maximum turns, a 151-dimensional state, eight flat actions,
-and a local OpenAI-compatible Llama 3.1 8B endpoint.
+The training configuration uses:
+
+- HybridSimulator with simulator seed 42
+- Learner seeds 1–5
+- 500 episodes per seed
+- 50 maximum turns per episode
+- A 151-dimensional state representation
+- Eight flat dialogue actions
+- A local OpenAI-compatible Llama 3.1 8B endpoint
+
+Review the five training commands:
+
+```bash
+./scripts/train_all_seeds.sh --dry-run
+```
+
+Run training for all five learner seeds:
 
 ```bash
 cp .env.example .env
-# export the values from .env in your preferred way, then start the local LLM.
-./scripts/train_all_seeds.sh --dry-run
 ./scripts/train_all_seeds.sh
 ```
 
-`--dry-run` prints and audits all five commands without starting training. New
-outputs go to ignored `runs/`; committed checkpoints are never overwritten.
+Training outputs are written to `runs/`.
 
 ## Reproduce seed-1 evaluation
 
-An offline template-mode smoke run:
+Run a small offline template-mode evaluation:
 
 ```bash
 ./scripts/evaluate_seed1.sh \
-  --template-mode --sessions-per-profile 1 --max-turns 10
+  --template-mode \
+  --sessions-per-profile 1 \
+  --max-turns 10
 ```
 
-The full evaluation uses the local Llama endpoint and the values frozen in
-`configs/evaluation_seed1.json`:
+Run the full frozen-policy evaluation using the configuration in `configs/evaluation_seed1.json`:
 
 ```bash
 ./scripts/evaluate_seed1.sh
 ```
 
-## User-study conditions
+The evaluation covers the Explorer, Focused, and Impatient simulator profiles and records turn-level rollouts, action distributions, transitions, dwell metrics, completion statistics, and state-consistency checks.
 
-The baseline and RL-assisted conditions share the same knowledge source and LLM
-response realization. The experimental difference is dialogue control: baseline
-prompting has no learned policy, while the RL-assisted condition loads an already
-trained policy checkpoint and uses its selected dialogue action to condition the
-grounded LLM response. The user-study deployment does not train or update the policy.
+## Conversational-agent conditions
 
-## Data boundary
+### Baseline
 
-Only approved derived columns are released: gaze FC, TFT, MDT, FRA, NSL, GTE,
-MSD, K, AR, SGV; conversation NAT, NUT, MARL, MURL, TCD, CDP, PC; and multimodal
-alignment MCFR-A, MCSL-A. The anonymous export can be rebuilt inside the controlled
-private environment with `scripts/build_public_measurements.py`; its private input
-must never be copied into this repository.
+The baseline condition uses an LLM and the museum knowledge graph to generate grounded responses to visitor messages.
+
+```text
+Visitor message -> Knowledge graph -> LLM -> Response
+```
+
+### RL-assisted
+
+The RL-assisted condition loads a trained policy checkpoint and uses it to select a dialogue action before generating the final knowledge-graph-grounded response.
+
+```text
+Visitor message -> State representation -> Trained policy
+                -> Dialogue action -> Knowledge graph -> LLM -> Response
+```
+
+The trained policy remains fixed during conversational-agent deployment.
+
+## Measurements
+
+The public measurement tables are organized into three groups.
+
+### Gaze measurements
+
+- FC
+- TFT
+- MDT
+- FRA
+- NSL
+- GTE
+- MSD
+- K
+- AR
+- SGV
+
+### Conversation measurements
+
+- NAT
+- NUT
+- MARL
+- MURL
+- TCD
+- CDP
+- PC
+
+### Multimodal-alignment measurements
+
+- MCFR-A
+- MCSL-A
+
+The tables use anonymous release-specific sample identifiers. Measurement definitions and units follow the accompanying paper.
+
+## Checkpoints
+
+The repository provides one final inference checkpoint for each learner seed:
+
+```text
+checkpoints/
+├── seed_1/checkpoint.pt
+├── seed_2/checkpoint.pt
+├── seed_3/checkpoint.pt
+├── seed_4/checkpoint.pt
+└── seed_5/checkpoint.pt
+```
+
+Each checkpoint was produced after 500 training episodes. Corresponding metadata and SHA256 checksums are provided for verification.
 
 ## License
 
-See `LICENSE`. Third-party model and service terms remain applicable to downloaded
-models and external LLM endpoints.
-
+See `LICENSE` for the repository license. Third-party model and service terms apply to downloaded models and external LLM endpoints.
