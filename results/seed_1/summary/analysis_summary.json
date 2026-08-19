@@ -1,0 +1,26 @@
+{
+  "sessions": 3,
+  "turns": 30,
+  "sessions_by_profile": {
+    "Explorer": 1,
+    "Focused": 1,
+    "Impatient": 1
+  },
+  "turns_by_profile": {
+    "Explorer": 10,
+    "Focused": 10,
+    "Impatient": 10
+  },
+  "mean_session_length": 10.0,
+  "mean_final_completion_fact_weighted": 0.36,
+  "termination_reasons": {
+    "max_turns": 3
+  },
+  "generated_tables": [
+    "action_distribution.csv",
+    "action_transitions.csv",
+    "action_sequences.csv",
+    "simulator_dwell_by_utterance_type.csv",
+    "simulator_dwell_by_action_and_type.csv"
+  ]
+}

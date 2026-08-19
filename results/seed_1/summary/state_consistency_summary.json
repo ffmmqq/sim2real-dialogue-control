@@ -1,0 +1,12 @@
+{
+  "state_exhibit_mismatch_count": 0,
+  "state_coverage_mismatch_count": 0,
+  "temporal_state_mismatch_count": 0,
+  "action_mask_state_mismatch_count": 0,
+  "reward_response_mismatch_count": 0,
+  "zero_fact_offer_transition_count": 0,
+  "consecutive_offer_transition_count": 0,
+  "all_state_mismatches_zero": true,
+  "completed_sessions": 3,
+  "expected_sessions": 3
+}

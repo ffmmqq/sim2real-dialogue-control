@@ -1,0 +1,17 @@
+{
+  "artifact": "final seed-1 HybridSimulator offline template-mode smoke evaluation",
+  "checkpoint": "checkpoints/seed_1/checkpoint.pt",
+  "checkpoint_sha256": "34e9e0609e3ab25206e9a47e243b2f5d36bfa8c946e54c2c96b66a96d43283e6",
+  "learner_seed": 1,
+  "simulator_seed_start": 1,
+  "training_simulator_seed": 42,
+  "policy_mode": "greedy",
+  "profiles": ["Explorer", "Focused", "Impatient"],
+  "sessions_per_profile": 1,
+  "max_turns": 10,
+  "llm_mode": "offline templates",
+  "state_dim": 151,
+  "action_dim": 8,
+  "note": "Synthetic simulator output only; no human-subject data is present."
+}
+
