@@ -1,0 +1,158 @@
+"""
+Model Loader for Inference
+
+Loads trained model checkpoints and initializes appropriate agents (MDP or SMDP).
+"""
+
+import types
+import sys
+from pathlib import Path
+from typing import Dict, List, Optional, Any
+
+import numpy as np
+import torch
+
+from pipeline.agent.actor_critic_agent import ActorCriticAgent
+from pipeline.flat_rl.agent import FlatActorCriticAgent
+
+
+def _install_numpy_pickle_compat() -> None:
+    """
+    Older checkpoints may reference numpy pickle paths like ``numpy._core``.
+    Newer NumPy distributions in the runtime env might not expose that module
+    path directly, so install a small alias before torch.load().
+    """
+    if 'numpy._core' not in sys.modules:
+        shim = types.ModuleType('numpy._core')
+        shim.__dict__.update(np.core.__dict__)
+        sys.modules['numpy._core'] = shim
+    if 'numpy._core.multiarray' not in sys.modules:
+        sys.modules['numpy._core.multiarray'] = np.core.multiarray
+
+
+def detect_model_type(checkpoint: dict) -> str:
+    """
+    Detect if model is flat (MDP) or hierarchical (SMDP).
+    
+    Args:
+        checkpoint: Loaded checkpoint dictionary
+        
+    Returns:
+        'MDP' or 'SMDP'
+    """
+    # Check network keys to determine type
+    if 'agent_state_dict' in checkpoint:
+        network_keys = checkpoint['agent_state_dict'].keys()
+    elif 'network' in checkpoint:
+        network_keys = checkpoint['network'].keys()
+    else:
+        # Default to MDP if can't determine
+        return 'MDP'
+    
+    # SMDP models have intra_option_policies and termination_functions
+    for key in network_keys:
+        if 'intra_option_policies' in key or 'termination_functions' in key:
+            return 'SMDP'
+    
+    # MDP models have flat action logits
+    return 'MDP'
+
+
+def load_model_checkpoint(model_path: str, device: str = 'cpu') -> dict:
+    """
+    Load model checkpoint from file.
+    
+    Args:
+        model_path: Path to .pt checkpoint file
+        device: Device to load model on ('cpu' or 'cuda')
+        
+    Returns:
+        Loaded checkpoint dictionary
+    """
+    model_path = Path(model_path)
+    if not model_path.exists():
+        raise FileNotFoundError(f"Model checkpoint not found: {model_path}")
+
+    _install_numpy_pickle_compat()
+    checkpoint = torch.load(str(model_path), map_location=device, weights_only=False)
+    return checkpoint
+
+
+def create_agent_from_checkpoint(
+    checkpoint: dict,
+    device: str = 'cpu',
+    hidden_dim: int = 256,
+    lstm_hidden_dim: int = 128,
+    use_lstm: bool = True
+) -> tuple:
+    """
+    Create agent instance from checkpoint.
+    
+    Args:
+        checkpoint: Loaded checkpoint dictionary
+        device: Device to create agent on
+        hidden_dim: Hidden layer dimension (must match training)
+        lstm_hidden_dim: LSTM hidden dimension (must match training)
+        use_lstm: Whether to use LSTM (must match training)
+        
+    Returns:
+        Tuple of (agent, model_type, metadata)
+        - agent: ActorCriticAgent or FlatActorCriticAgent
+        - model_type: 'MDP' or 'SMDP'
+        - metadata: dict with state_dim, options, subactions
+    """
+    # Extract metadata
+    state_dim = checkpoint.get('state_dim', 143)
+    options = checkpoint.get('options', ["Explain", "AskQuestion", "OfferTransition", "Conclude"])
+    subactions = checkpoint.get('subactions', {
+        "Explain": ["ExplainNewFact", "RepeatFact", "ClarifyFact"],
+        "AskQuestion": ["AskOpinion", "AskMemory", "AskClarification"],
+        "OfferTransition": ["SummarizeAndSuggest"],
+        "Conclude": ["WrapUp"]
+    })
+    
+    # Detect model type
+    model_type = detect_model_type(checkpoint)
+    
+    # Create appropriate agent
+    if model_type == 'SMDP':
+        agent = ActorCriticAgent(
+            state_dim=state_dim,
+            options=options,
+            subactions=subactions,
+            hidden_dim=hidden_dim,
+            lstm_hidden_dim=lstm_hidden_dim,
+            use_lstm=use_lstm,
+            device=device,
+            termination_strategy='learned'
+        )
+    else:  # MDP
+        agent = FlatActorCriticAgent(
+            state_dim=state_dim,
+            options=options,
+            subactions=subactions,
+            hidden_dim=hidden_dim,
+            lstm_hidden_dim=lstm_hidden_dim,
+            use_lstm=use_lstm,
+            device=device
+        )
+    
+    # Load weights
+    if 'agent_state_dict' in checkpoint:
+        agent.network.load_state_dict(checkpoint['agent_state_dict'])
+    elif 'network' in checkpoint:
+        agent.network.load_state_dict(checkpoint['network'])
+    else:
+        raise ValueError("Checkpoint does not contain 'agent_state_dict' or 'network' key")
+    
+    # Set to evaluation mode
+    agent.network.eval()
+    
+    metadata = {
+        'state_dim': state_dim,
+        'options': options,
+        'subactions': subactions,
+        'model_type': model_type
+    }
+    
+    return agent, model_type, metadata
