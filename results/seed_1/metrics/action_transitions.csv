@@ -1,0 +1,13 @@
+profile,from_action,to_action,count,conditional_probability,from_action_total
+ALL,Explain/ExplainNewFact,Explain/ExplainNewFact,21,0.875,24
+ALL,Explain/ExplainNewFact,OfferTransition/SummarizeAndSuggest,3,0.125,24
+ALL,OfferTransition/SummarizeAndSuggest,Explain/ExplainNewFact,3,1.0,3
+Explorer,Explain/ExplainNewFact,Explain/ExplainNewFact,7,0.875,8
+Explorer,Explain/ExplainNewFact,OfferTransition/SummarizeAndSuggest,1,0.125,8
+Explorer,OfferTransition/SummarizeAndSuggest,Explain/ExplainNewFact,1,1.0,1
+Focused,Explain/ExplainNewFact,Explain/ExplainNewFact,7,0.875,8
+Focused,Explain/ExplainNewFact,OfferTransition/SummarizeAndSuggest,1,0.125,8
+Focused,OfferTransition/SummarizeAndSuggest,Explain/ExplainNewFact,1,1.0,1
+Impatient,Explain/ExplainNewFact,Explain/ExplainNewFact,7,0.875,8
+Impatient,Explain/ExplainNewFact,OfferTransition/SummarizeAndSuggest,1,0.125,8
+Impatient,OfferTransition/SummarizeAndSuggest,Explain/ExplainNewFact,1,1.0,1

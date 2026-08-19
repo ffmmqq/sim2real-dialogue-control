@@ -1,0 +1,4 @@
+session_id,profile,evaluation_seed,turn_count,first_transition_turn,action_sequence
+explorer_001,Explorer,1,10,6,Explain/ExplainNewFact > Explain/ExplainNewFact > Explain/ExplainNewFact > Explain/ExplainNewFact > Explain/ExplainNewFact > OfferTransition/SummarizeAndSuggest > Explain/ExplainNewFact > Explain/ExplainNewFact > Explain/ExplainNewFact > Explain/ExplainNewFact
+focused_001,Focused,2,10,6,Explain/ExplainNewFact > Explain/ExplainNewFact > Explain/ExplainNewFact > Explain/ExplainNewFact > Explain/ExplainNewFact > OfferTransition/SummarizeAndSuggest > Explain/ExplainNewFact > Explain/ExplainNewFact > Explain/ExplainNewFact > Explain/ExplainNewFact
+impatient_001,Impatient,3,10,6,Explain/ExplainNewFact > Explain/ExplainNewFact > Explain/ExplainNewFact > Explain/ExplainNewFact > Explain/ExplainNewFact > OfferTransition/SummarizeAndSuggest > Explain/ExplainNewFact > Explain/ExplainNewFact > Explain/ExplainNewFact > Explain/ExplainNewFact
