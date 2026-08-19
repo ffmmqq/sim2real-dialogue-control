@@ -1,0 +1,27 @@
+{
+  "project_root": ".",
+  "checkpoint": "checkpoints/seed_1/checkpoint.pt",
+  "training_metadata": "checkpoints/seed_1/metadata.json",
+  "knowledge_graph": "pipeline/museum_knowledge_graph.json",
+  "profiles": ["Explorer", "Focused", "Impatient"],
+  "sessions_per_profile": 100,
+  "seed_start": 1,
+  "max_turns": 50,
+  "simulator": "hybrid",
+  "simulator_stochasticity": 0.5,
+  "simulator_persona": "Agreeable",
+  "policy_mode": "greedy",
+  "policy_temperature": 1.0,
+  "llm_backend": "local_openai",
+  "llm_model": "meta-llama/Llama-3.1-8B-Instruct",
+  "agent_llm_temperature": 0.3,
+  "agent_llm_max_tokens": 300,
+  "simulator_llm_temperature": 0.6,
+  "simulator_llm_max_tokens": 150,
+  "local_llm_top_p": 0.9,
+  "local_llm_seed": 42,
+  "local_llm_base_url": "http://127.0.0.1:8000/v1",
+  "expected_state_dim": 151,
+  "expected_action_dim": 8
+}
+
