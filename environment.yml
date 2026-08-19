@@ -1,0 +1,19 @@
+name: sim2real-dialogue-control
+channels:
+  - pytorch
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pip
+  - numpy>=1.24
+  - pytorch>=2.2
+  - transformers>=4.40
+  - gymnasium>=0.29
+  - pandas>=2.0
+  - matplotlib>=3.7
+  - seaborn>=0.13
+  - tqdm>=4.66
+  - requests>=2.31
+  - pip:
+      - openai>=1.30
+

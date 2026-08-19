@@ -1,0 +1,59 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# Credentials and local configuration
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+key.txt
+secrets/
+
+# Generated training/evaluation artifacts (the curated results/seed_1 stays tracked)
+runs/
+cluster_runs/
+evaluation_runs/
+training_logs/
+slurm_logs/
+.cache/
+.hf_cache/
+
+# Human-subject raw data and media: never commit
+raw_data/
+participants/
+participant_data/
+raw_gaze/
+transcripts/
+questionnaires/
+audio/
+video/
+*.wav
+*.mp3
+*.mp4
+*.mov
+*.avi
+
+# VR/engine projects and generated files: out of release scope
+Assets/
+Packages/
+ProjectSettings/
+Library/
+Temp/
+Logs/
+UserSettings/
+*.unity
+*.prefab
+*.asset
+
+# OS/editor
+.DS_Store
+.idea/
+.vscode/
+
